@@ -12,7 +12,7 @@ function App() {
   const scrollTriggerRef = useRef(null);
   const frameRef = useRef({ value: 0 });
 
-  const currentFrame = (index) => (`/frames/row_webTest_${index.toString().padStart(2, '0')}.jpg`);
+  const currentFrame = (index) => (`frames/row_webTest_${index.toString().padStart(2, '0')}.jpg`);
 
   useEffect(() => {
     const canvas = canvasRef.current;
