@@ -1,8 +1,9 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { useEffect, useRef } from 'react';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
 const FRAME_COUNT = 60;
 
@@ -11,6 +12,9 @@ function App() {
   const imagesRef = useRef([]);
   const scrollTriggerRef = useRef(null);
   const frameRef = useRef({ value: 0 });
+  const smootherRef = useRef(null);
+  const wrapperRef = useRef();
+  const contentRef = useRef();
 
   const currentFrame = (index) => (`frames/row_webTest_${index.toString().padStart(2, '0')}.jpg`);
 
@@ -18,6 +22,16 @@ function App() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let imagesLoaded = 0;
+
+    // Initialize ScrollSmoother first
+    smootherRef.current = ScrollSmoother.create({
+      wrapper: wrapperRef.current,
+      content: contentRef.current,
+      smooth: 1.5, // Adjust smoothness (higher = smoother but more delayed)
+      effects: true,
+      normalizeScroll: true, // Helps with cross-browser consistency
+      ignoreMobileResize: true,
+    });
 
     // Setup canvas size
     const resizeCanvas = () => {
@@ -82,13 +96,16 @@ function App() {
         scrollTrigger: {
           trigger: canvas,
           start: 'top top',
-          scrub: 0.5,
+          scrub: 1, // Increased scrub value for smoother playback
           pin: true,
           end: '+=2000',
           onUpdate: renderFrame
         },
         onUpdate: renderFrame,
       });
+
+      // Refresh ScrollTrigger after ScrollSmoother is initialized
+      ScrollTrigger.refresh();
     };
 
     // Initialize
@@ -104,6 +121,9 @@ function App() {
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
       }
+      if (smootherRef.current) {
+        smootherRef.current.kill();
+      }
 
       // Clear image references
       imagesRef.current = [];
@@ -111,16 +131,22 @@ function App() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100vh',
-      }}
-    />
+    <div ref={wrapperRef} id="smooth-wrapper">
+      <div ref={contentRef} id="smooth-content">
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100vh',
+          }}
+        />
+        {/* This div provides the scrollable height */}
+        {/* <div style={{ height: '3000px' }} /> */}
+      </div>
+    </div>
   );
 }
 
