@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-const FRAME_COUNT = 408;
+const FRAME_COUNT = 396;
 
 function App() {
   const canvasRef = useRef();
