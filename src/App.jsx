@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-const FRAME_COUNT = 429;
+const FRAME_COUNT = 408;
 
 function App() {
   const canvasRef = useRef();
@@ -16,7 +16,7 @@ function App() {
   const wrapperRef = useRef();
   const contentRef = useRef();
 
-  const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(3, '0')}.png`);
+  const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(3, '0')}.jpg`);
 
   useEffect(() => {
     const canvas = canvasRef.current;
