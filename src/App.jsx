@@ -5,7 +5,9 @@ import { useEffect, useRef } from 'react';
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
+const FRAME_ASPECT = 16 / 9;
 const FRAME_COUNT = 396;
+const SCROLL_DISTANCE = 20000;
 
 function App() {
   const canvasRef = useRef();
@@ -98,10 +100,9 @@ function App() {
           start: 'top top',
           scrub: 1, // Increased scrub value for smoother playback
           pin: true,
-          end: '+=2000',
+          end: `+=${SCROLL_DISTANCE}`,
           onUpdate: renderFrame
         },
-        onUpdate: renderFrame,
       });
 
       // Refresh ScrollTrigger after ScrollSmoother is initialized
@@ -143,8 +144,6 @@ function App() {
             height: '100vh',
           }}
         />
-        {/* This div provides the scrollable height */}
-        {/* <div style={{ height: '3000px' }} /> */}
       </div>
     </div>
   );
