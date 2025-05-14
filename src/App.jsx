@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
 const FRAME_ASPECT = 16 / 9;
 const FRAME_COUNT = 396;
-const SCROLL_DISTANCE = 20000;
+const SCROLL_DISTANCE = 2000;
 
 function App() {
   const canvasRef = useRef();
