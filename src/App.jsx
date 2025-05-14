@@ -37,14 +37,34 @@ function App() {
 
     // Setup canvas size
     const resizeCanvas = () => {
-      const { width, height } = canvas.getBoundingClientRect();
-      canvas.width = width;
-      canvas.height = height;
+      // const { width, height } = canvas.getBoundingClientRect();
+      // canvas.width = width;
+      // canvas.height = height;
 
-      // Re-render current frame on resize
-      if (imagesRef.current.length > 0) {
-        renderFrame();
+      // // Re-render current frame on resize
+      // if (imagesRef.current.length > 0) {
+      //   renderFrame();
+      // }
+
+      const { innerHeight, innerWidth } = window;
+      let canvasHeight, canvasWidth;
+
+      if (innerWidth / innerHeight >= FRAME_ASPECT) { // wide
+        canvasWidth = innerHeight * FRAME_ASPECT;
+        canvasHeight = innerHeight;
+      } else { // tall
+        canvasWidth = innerWidth;
+        canvasHeight = innerWidth / FRAME_ASPECT;
       }
+
+      console.log(canvasWidth, canvasHeight);
+
+      canvas.style.width = `${canvasWidth}px`;
+      canvas.style.height = `${canvasHeight}px`;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      renderFrame();
     };
 
     // Render the current frame based on frameRef value
@@ -114,11 +134,14 @@ function App() {
     loadImages();
 
     // Event listeners
+    screen.orientation.addEventListener('change', resizeCanvas);
     window.addEventListener('resize', resizeCanvas);
 
     // Cleanup
     return () => {
+      screen.orientation.removeEventListener('change', resizeCanvas);
       window.removeEventListener('resize', resizeCanvas);
+
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
       }
@@ -140,8 +163,8 @@ function App() {
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100vh',
+            // width: '100%',
+            // height: '100vh',
           }}
         />
       </div>
