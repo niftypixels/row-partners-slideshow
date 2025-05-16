@@ -1,7 +1,8 @@
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollSmoother } from 'gsap/ScrollSmoother';
-import { useEffect, useRef } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from './hooks';
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
@@ -10,161 +11,151 @@ const FRAME_COUNT = 396;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
-  const canvasRef = useRef();
-  const imagesRef = useRef([]);
-  const scrollTriggerRef = useRef(null);
-  const frameRef = useRef({ value: 0 });
-  const smootherRef = useRef(null);
+  const [worldKey, setWorldKey] = useState(0);
+
   const wrapperRef = useRef();
   const contentRef = useRef();
+  const canvasRef = useRef();
+  const imagesRef = useRef([]);
+  const frameRef = useRef({ value: 0 });
+  const scrollSmootherRef = useRef(null);
+  const scrollTriggerRef = useRef(null);
 
   const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(3, '0')}.jpg`);
+  const handleResize = useDebounce(() => setWorldKey(key => key + 1), 150);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let imagesLoaded = 0;
+  function killScrollers() {
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.kill();
+    }
+    if (scrollSmootherRef.current) {
+      scrollSmootherRef.current.kill();
+    }
+  }
 
-    // Initialize ScrollSmoother first
-    smootherRef.current = ScrollSmoother.create({
+  function renderFrame() {
+    if (!canvasRef.current || imagesRef.current.length === 0) return;
+
+    const { width, height } = canvasRef.current;
+    const ctx = canvasRef.current.getContext('2d');
+    const frameIndex = Math.min(
+      Math.floor(frameRef.current.value),
+      FRAME_COUNT - 1
+    );
+
+    console.log('rendering frame', frameIndex);
+
+    ctx.clearRect(
+      0, 0, width, height
+    );
+
+    ctx.drawImage(imagesRef.current[frameIndex],
+      0, 0, width, height
+    );
+  };
+
+  function resizeCanvas() {
+    if (!canvasRef.current) return;
+
+    const { width, height } = canvasRef.current.getBoundingClientRect();
+
+    // set canvas resolution
+    canvasRef.current.width = width;
+    canvasRef.current.height = height;
+
+    if (imagesRef.current.length > 0) {
+      renderFrame();
+    }
+  };
+
+  function setupScrollSmoother() {
+    if (scrollSmootherRef.current) {
+      scrollSmootherRef.current.kill();
+    }
+
+    scrollSmootherRef.current = ScrollSmoother.create({
       wrapper: wrapperRef.current,
       content: contentRef.current,
-      smooth: 1.5, // Adjust smoothness (higher = smoother but more delayed)
+      smooth: 1.5,
       effects: true,
-      normalizeScroll: true, // Helps with cross-browser consistency
+      normalizeScroll: true,
       ignoreMobileResize: true,
     });
 
-    // Setup canvas size
-    const resizeCanvas = () => {
-      // const { width, height } = canvas.getBoundingClientRect();
-      // canvas.width = width;
-      // canvas.height = height;
+    return scrollSmootherRef.current;
+  };
 
-      // // Re-render current frame on resize
-      // if (imagesRef.current.length > 0) {
-      //   renderFrame();
-      // }
+  function setupScrollTrigger() {
+    if (!canvasRef.current || !scrollSmootherRef.current) return;
 
-      const { innerHeight, innerWidth } = window;
-      let canvasHeight, canvasWidth;
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.kill();
+    }
 
-      if (innerWidth / innerHeight >= FRAME_ASPECT) { // wide
-        canvasWidth = innerHeight * FRAME_ASPECT;
-        canvasHeight = innerHeight;
-      } else { // tall
-        canvasWidth = innerWidth;
-        canvasHeight = innerWidth / FRAME_ASPECT;
-      }
+    scrollTriggerRef.current = gsap.to(frameRef.current, {
+      value: FRAME_COUNT - 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: canvasRef.current,
+        start: 'top top',
+        scrub: 1,
+        pin: true,
+        end: `+=${SCROLL_DISTANCE}`,
+        onUpdate: renderFrame,
+        onRefresh: () => {
+          console.log('ScrollTrigger refreshed');
+        }
+      },
+    });
 
-      console.log(canvasWidth, canvasHeight);
+    ScrollTrigger.refresh();
 
-      canvas.style.width = `${canvasWidth}px`;
-      canvas.style.height = `${canvasHeight}px`;
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
+    return scrollTriggerRef.current;
+  };
 
-      renderFrame();
-    };
+  useEffect(() => {
+    console.warn('world iteration', worldKey);
 
-    // Render the current frame based on frameRef value
-    const renderFrame = () => {
-      if (imagesRef.current.length === 0) return;
-
-      const frameIndex = Math.min(
-        Math.floor(frameRef.current.value),
-        FRAME_COUNT - 1
-      );
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        imagesRef.current[frameIndex],
-        0, 0,
-        canvas.width,
-        canvas.height
-      );
-    };
-
-    // Load all images first
-    const loadImages = () => {
-      for (let i = 0; i < FRAME_COUNT; i++) {
-        const img = new Image();
-        img.src = currentFrame(i);
-
-        img.onload = () => {
-          imagesLoaded++;
-
-          // Once all images loaded, set up animation
-          if (imagesLoaded === FRAME_COUNT) {
-            setupScrollAnimation();
-            renderFrame(); // Render first frame
-          }
-        };
-
-        imagesRef.current.push(img);
-      }
-    };
-
-    // Set up the GSAP ScrollTrigger animation
-    const setupScrollAnimation = () => {
-      // Kill previous ScrollTrigger if it exists
-      if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
-      }
-
-      scrollTriggerRef.current = gsap.to(frameRef.current, {
-        value: FRAME_COUNT - 1,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: canvas,
-          start: 'top top',
-          scrub: 1, // Increased scrub value for smoother playback
-          pin: true,
-          end: `+=${SCROLL_DISTANCE}`,
-          onUpdate: renderFrame
-        },
-      });
-
-      // Refresh ScrollTrigger after ScrollSmoother is initialized
-      ScrollTrigger.refresh();
-    };
-
-    // Initialize
+    killScrollers();
     resizeCanvas();
-    loadImages();
+    setupScrollSmoother();
 
-    // Event listeners
-    screen.orientation.addEventListener('change', resizeCanvas);
-    window.addEventListener('resize', resizeCanvas);
+    let imagesLoaded = 0;
 
-    // Cleanup
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      const img = new Image();
+      img.src = currentFrame(i);
+      img.onload = () => {
+        imagesLoaded++;
+
+        if (imagesLoaded === FRAME_COUNT) {
+          setupScrollTrigger();
+          renderFrame();
+        }
+      };
+
+      imagesRef.current.push(img);
+    }
+
     return () => {
-      screen.orientation.removeEventListener('change', resizeCanvas);
-      window.removeEventListener('resize', resizeCanvas);
-
-      if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
-      }
-      if (smootherRef.current) {
-        smootherRef.current.kill();
-      }
-
-      // Clear image references
       imagesRef.current = [];
+      killScrollers();
     };
+  }, [worldKey]);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <div ref={wrapperRef} id="smooth-wrapper">
-      <div ref={contentRef} id="smooth-content">
+    <div id='smooth-wrapper' ref={wrapperRef}>
+      <div id='smooth-content' ref={contentRef}>
         <canvas
           ref={canvasRef}
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            // width: '100%',
-            // height: '100vh',
+            aspectRatio: FRAME_ASPECT,
+            width: '100%',
           }}
         />
       </div>
