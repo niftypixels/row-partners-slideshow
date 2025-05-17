@@ -11,8 +11,6 @@ const FRAME_COUNT = 396;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
-  const [worldKey, setWorldKey] = useState(0);
-
   const wrapperRef = useRef();
   const contentRef = useRef();
   const canvasRef = useRef();
@@ -20,6 +18,8 @@ function App() {
   const frameRef = useRef({ value: 0 });
   const scrollSmootherRef = useRef(null);
   const scrollTriggerRef = useRef(null);
+
+  const [worldKey, setWorldKey] = useState(0);
 
   const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(3, '0')}.jpg`);
   const handleResize = useDebounce(() => setWorldKey(key => key + 1), 150);
