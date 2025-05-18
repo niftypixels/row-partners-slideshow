@@ -27,9 +27,11 @@ function App() {
   function killScrollers() {
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
+      scrollTriggerRef.current = null;
     }
     if (scrollSmootherRef.current) {
       scrollSmootherRef.current.kill();
+      scrollSmootherRef.current = null;
     }
   }
 
@@ -71,6 +73,7 @@ function App() {
   function setupScrollSmoother() {
     if (scrollSmootherRef.current) {
       scrollSmootherRef.current.kill();
+      scrollSmootherRef.current = null;
     }
 
     scrollSmootherRef.current = ScrollSmoother.create({
@@ -90,6 +93,7 @@ function App() {
 
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
+      scrollTriggerRef.current = null;
     }
 
     scrollTriggerRef.current = gsap.to(frameRef.current, {
