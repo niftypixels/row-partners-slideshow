@@ -30,7 +30,6 @@ function App() {
     if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
 
     const { width, height } = canvasRef.current;
-    const ctx = ctxRef.current;
     const frameIndex = Math.min(
       Math.floor(frameRef.current.value),
       FRAME_COUNT - 1
@@ -38,11 +37,11 @@ function App() {
 
     console.log('rendering frame', frameIndex);
 
-    ctx.clearRect(
+    ctxRef.current.clearRect(
       0, 0, width, height
     );
 
-    ctx.drawImage(imagesRef.current[frameIndex],
+    ctxRef.current.drawImage(imagesRef.current[frameIndex],
       0, 0, width, height
     );
   };
