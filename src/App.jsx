@@ -14,6 +14,7 @@ function App() {
   const wrapperRef = useRef();
   const contentRef = useRef();
   const canvasRef = useRef();
+  const ctxRef = useRef();
   const imagesRef = useRef([]);
   const frameRef = useRef({ value: 0 });
   const scrollSmootherRef = useRef(null);
@@ -26,10 +27,10 @@ function App() {
   const isLoaded = (imagesLoaded === FRAME_COUNT);
 
   function renderFrame() {
-    if (!canvasRef.current || imagesRef.current.length === 0) return;
+    if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
 
     const { width, height } = canvasRef.current;
-    const ctx = canvasRef.current.getContext('2d');
+    const ctx = ctxRef.current;
     const frameIndex = Math.min(
       Math.floor(frameRef.current.value),
       FRAME_COUNT - 1
@@ -54,6 +55,8 @@ function App() {
     // set canvas resolution
     canvasRef.current.width = width;
     canvasRef.current.height = height;
+
+    ctxRef.current = canvasRef.current.getContext('2d');
 
     if (imagesRef.current.length > 0) {
       renderFrame();
@@ -110,7 +113,9 @@ function App() {
   useEffect(() => {
     if (imagesLoaded < FRAME_COUNT) {
       const img = new Image();
+
       img.src = currentFrame(imagesLoaded);
+
       img.onload = () => {
         imagesRef.current[imagesLoaded] = img;
         setImagesLoaded(imagesLoaded + 1);
