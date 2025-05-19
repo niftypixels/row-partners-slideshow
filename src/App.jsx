@@ -119,6 +119,8 @@ function App() {
   };
 
   useEffect(() => {
+    console.log(`loading ${Math.floor(imagesLoaded / FRAME_COUNT * 100)}% complete`);
+
     if (imagesLoaded < FRAME_COUNT) {
       const img = new Image();
       img.src = currentFrame(imagesLoaded);
@@ -127,6 +129,7 @@ function App() {
         setImagesLoaded(imagesLoaded + 1);
       };
     } else {
+      console.log('images loaded', imagesLoaded);
       setWorldKey(worldKey + 1);
     }
   }, [imagesLoaded]);
