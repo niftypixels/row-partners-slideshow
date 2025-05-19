@@ -19,6 +19,7 @@ function App() {
   const scrollSmootherRef = useRef(null);
   const scrollTriggerRef = useRef(null);
 
+  const [imagesLoaded, setImagesLoaded] = useState(0);
   const [worldKey, setWorldKey] = useState(0);
 
   const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(3, '0')}.jpg`);
@@ -118,31 +119,31 @@ function App() {
   };
 
   useEffect(() => {
+    if (imagesLoaded < FRAME_COUNT) {
+      const img = new Image();
+      img.src = currentFrame(imagesLoaded);
+      img.onload = () => {
+        imagesRef.current[imagesLoaded] = img;
+        setImagesLoaded(imagesLoaded + 1);
+      };
+    } else {
+      setWorldKey(worldKey + 1);
+    }
+  }, [imagesLoaded]);
+
+  useEffect(() => {
     console.warn('world iteration', worldKey);
 
     killScrollers();
     resizeCanvas();
     setupScrollSmoother();
 
-    let imagesLoaded = 0;
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.src = currentFrame(i);
-      img.onload = () => {
-        imagesLoaded++;
-
-        if (imagesLoaded === FRAME_COUNT) {
-          setupScrollTrigger();
-          renderFrame();
-        }
-      };
-
-      imagesRef.current.push(img);
+    if (imagesLoaded === FRAME_COUNT) {
+      setupScrollTrigger();
+      renderFrame();
     }
 
     return () => {
-      imagesRef.current = [];
       killScrollers();
     };
   }, [worldKey]);
