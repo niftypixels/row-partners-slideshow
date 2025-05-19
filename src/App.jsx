@@ -25,17 +25,6 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
   const isLoaded = (imagesLoaded === FRAME_COUNT);
 
-  function killScrollers() {
-    if (scrollTriggerRef.current) {
-      scrollTriggerRef.current.kill();
-      scrollTriggerRef.current = null;
-    }
-    if (scrollSmootherRef.current) {
-      scrollSmootherRef.current.kill();
-      scrollSmootherRef.current = null;
-    }
-  }
-
   function renderFrame() {
     if (!canvasRef.current || imagesRef.current.length === 0) return;
 
@@ -132,14 +121,20 @@ function App() {
   useEffect(() => {
     if (!isLoaded) return;
 
-    killScrollers();
     resizeCanvas();
     setupScrollSmoother();
     setupScrollTrigger();
     renderFrame();
 
     return () => {
-      killScrollers();
+      if (scrollTriggerRef.current) {
+        scrollTriggerRef.current.kill();
+        scrollTriggerRef.current = null;
+      }
+      if (scrollSmootherRef.current) {
+        scrollSmootherRef.current.kill();
+        scrollSmootherRef.current = null;
+      }
     };
   }, [isLoaded]);
 
