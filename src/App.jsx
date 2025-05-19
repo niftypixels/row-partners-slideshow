@@ -20,10 +20,9 @@ function App() {
   const scrollTriggerRef = useRef(null);
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
-  const [worldKey, setWorldKey] = useState(0);
 
   const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
-  const handleResize = useDebounce(() => setWorldKey(key => key + 1), 150);
+  const handleResize = useDebounce(resizeCanvas, 150);
   const isLoaded = (imagesLoaded === FRAME_COUNT);
 
   function killScrollers() {
@@ -127,28 +126,22 @@ function App() {
         imagesRef.current[imagesLoaded] = img;
         setImagesLoaded(imagesLoaded + 1);
       };
-    } else {
-      console.log('images loaded', imagesLoaded);
-      setWorldKey(worldKey + 1);
     }
   }, [imagesLoaded]);
 
   useEffect(() => {
-    console.warn('world iteration', worldKey);
+    if (!isLoaded) return;
 
     killScrollers();
     resizeCanvas();
-
-    if (isLoaded) {
-      setupScrollSmoother();
-      setupScrollTrigger();
-      renderFrame();
-    }
+    setupScrollSmoother();
+    setupScrollTrigger();
+    renderFrame();
 
     return () => {
       killScrollers();
     };
-  }, [isLoaded, worldKey]);
+  }, [isLoaded]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
