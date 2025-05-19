@@ -155,9 +155,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return (!isLoaded) ? (
-    <div id='loading' style={{ width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%` }} />
-  ) : (
+  return (isLoaded) ? (
     <div id='smooth-wrapper' ref={wrapperRef}>
       <div id='smooth-content' ref={contentRef}>
         <canvas ref={canvasRef}
@@ -168,6 +166,8 @@ function App() {
         />
       </div>
     </div>
+  ) : (
+    <div id='loading' style={{ width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%` }} />
   );
 }
 
