@@ -22,7 +22,7 @@ function App() {
   const [imagesLoaded, setImagesLoaded] = useState(0);
   const [worldKey, setWorldKey] = useState(0);
 
-  const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(String(FRAME_COUNT).length, '0')}.jpg`);
+  const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
   const handleResize = useDebounce(() => setWorldKey(key => key + 1), 150);
 
   function killScrollers() {
