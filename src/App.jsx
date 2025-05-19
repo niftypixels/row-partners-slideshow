@@ -51,7 +51,7 @@ function App() {
 
     const { width, height } = canvasRef.current.getBoundingClientRect();
 
-    // set canvas resolution
+    // set canvas resolution to DOM element dimensions
     canvasRef.current.width = width;
     canvasRef.current.height = height;
 
