@@ -24,6 +24,7 @@ function App() {
 
   const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
   const handleResize = useDebounce(() => setWorldKey(key => key + 1), 150);
+  const isLoaded = (imagesLoaded === FRAME_COUNT);
 
   function killScrollers() {
     if (scrollTriggerRef.current) {
@@ -138,7 +139,7 @@ function App() {
     killScrollers();
     resizeCanvas();
 
-    if (imagesLoaded === FRAME_COUNT) {
+    if (isLoaded) {
       setupScrollSmoother();
       setupScrollTrigger();
       renderFrame();
@@ -147,22 +148,19 @@ function App() {
     return () => {
       killScrollers();
     };
-  }, [worldKey]);
+  }, [isLoaded, worldKey]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return (imagesLoaded !== FRAME_COUNT) ? (
-    <div id='loading' style={{
-      width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
-    }} />
+  return (!isLoaded) ? (
+    <div id='loading' style={{ width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%` }} />
   ) : (
     <div id='smooth-wrapper' ref={wrapperRef}>
       <div id='smooth-content' ref={contentRef}>
-        <canvas
-          ref={canvasRef}
+        <canvas ref={canvasRef}
           style={{
             aspectRatio: FRAME_ASPECT,
             width: '100%',
