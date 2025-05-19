@@ -18,6 +18,11 @@ body::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
 
+#loading {
+  background-color: #f00;
+  height: 2px;
+}
+
 /* Required wrapper styles for ScrollSmoother */
 #smooth-wrapper {
   position: fixed;

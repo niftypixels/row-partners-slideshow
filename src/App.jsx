@@ -119,8 +119,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(`loading ${Math.floor(imagesLoaded / FRAME_COUNT * 100)}% complete`);
-
     if (imagesLoaded < FRAME_COUNT) {
       const img = new Image();
       img.src = currentFrame(imagesLoaded);
@@ -139,9 +137,9 @@ function App() {
 
     killScrollers();
     resizeCanvas();
-    setupScrollSmoother();
 
     if (imagesLoaded === FRAME_COUNT) {
+      setupScrollSmoother();
       setupScrollTrigger();
       renderFrame();
     }
@@ -156,7 +154,11 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return (
+  return (imagesLoaded !== FRAME_COUNT) ? (
+    <div id='loading' style={{
+      width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
+    }} />
+  ) : (
     <div id='smooth-wrapper' ref={wrapperRef}>
       <div id='smooth-content' ref={contentRef}>
         <canvas
