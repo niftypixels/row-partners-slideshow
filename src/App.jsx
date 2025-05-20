@@ -60,6 +60,10 @@ function App() {
     if (imagesRef.current.length > 0) {
       renderFrame();
     }
+
+    if (scrollTriggerRef.current) {
+      ScrollTrigger.refresh();
+    }
   };
 
   function setupScrollSmoother() {
