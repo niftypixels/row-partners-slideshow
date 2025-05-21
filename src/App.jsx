@@ -49,21 +49,26 @@ function App() {
   function resizeCanvas() {
     if (!canvasRef.current) return;
 
-    const { width, height } = canvasRef.current.getBoundingClientRect();
+    // double RAF ensures stable dimensions after viewport changes
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const { width, height } = canvasRef.current.getBoundingClientRect();
 
-    // set canvas resolution to DOM element dimensions
-    canvasRef.current.width = width;
-    canvasRef.current.height = height;
+        // set canvas resolution to DOM element dimensions
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
 
-    ctxRef.current = canvasRef.current.getContext('2d');
+        ctxRef.current = canvasRef.current.getContext('2d');
 
-    if (imagesRef.current.length > 0) {
-      renderFrame();
-    }
+        if (imagesRef.current.length > 0) {
+          renderFrame();
+        }
 
-    if (scrollTriggerRef.current) {
-      ScrollTrigger.refresh();
-    }
+        if (scrollTriggerRef.current) {
+          ScrollTrigger.refresh();
+        }
+      });
+    });
   };
 
   function setupScrollSmoother() {
