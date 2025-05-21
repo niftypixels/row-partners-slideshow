@@ -7,7 +7,7 @@ import { useDebounce } from './hooks';
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
 const FRAME_ASPECT = 16 / 9;
-const FRAME_COUNT = 396;
+const FRAME_COUNT = 398;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
 
-  const currentFrame = (index) => (`frames/row_webTest7_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
+  const currentFrame = (index) => (`frames/row_webTest11_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
   const handleResize = useDebounce(resizeCanvas, 150);
   const isLoaded = (imagesLoaded === FRAME_COUNT);
 
