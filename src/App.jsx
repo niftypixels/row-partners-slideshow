@@ -104,7 +104,7 @@ function App() {
       scrollTrigger: {
         trigger: canvasRef.current,
         start: 'top top',
-        scrub: 1,
+        scrub: true,
         pin: true,
         end: `+=${SCROLL_DISTANCE}`,
         onUpdate: renderFrame,
@@ -169,7 +169,13 @@ function App() {
       </div>
     </div>
   ) : (
-    <div id='loading' style={{ width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%` }} />
+    <div id='loading'
+      style={{
+        backgroundColor: 'red',
+        height: '2px',
+        width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
+      }}
+    />
   );
 }
 
