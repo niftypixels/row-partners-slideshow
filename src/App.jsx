@@ -80,10 +80,11 @@ function App() {
     scrollSmootherRef.current = ScrollSmoother.create({
       wrapper: wrapperRef.current,
       content: contentRef.current,
-      smooth: 1.5,
-      effects: true,
-      normalizeScroll: true,
-      ignoreMobileResize: true,
+      smooth: 1,
+      smoothTouch: 0.1,
+      effects: false,
+      normalizeScroll: false,
+      ignoreMobileResize: false,
     });
 
     return scrollSmootherRef.current;
