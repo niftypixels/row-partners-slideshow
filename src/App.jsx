@@ -132,7 +132,7 @@ function App() {
       }}
     />
   ) : (
-    <div id='loading'
+    <div
       style={{
         backgroundColor: 'red',
         height: '2px',
