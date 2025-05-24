@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef, useState } from 'react';
-import { useDebounce } from './hooks';
+import useDebounce from './hooks/useDebounce';
 
 gsap.registerPlugin(ScrollTrigger);
 
