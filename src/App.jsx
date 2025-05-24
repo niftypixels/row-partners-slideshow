@@ -31,8 +31,6 @@ function App() {
       FRAME_COUNT - 1
     );
 
-    console.log('rendering frame', frameIndex);
-
     ctxRef.current.clearRect(
       0, 0, width, height
     );
@@ -53,8 +51,6 @@ function App() {
         // set canvas resolution to DOM element dimensions
         canvasRef.current.width = width;
         canvasRef.current.height = height;
-
-        ctxRef.current = canvasRef.current.getContext('2d');
 
         if (imagesRef.current.length > 0) {
           renderFrame();
@@ -85,9 +81,6 @@ function App() {
         pin: true,
         scrub: true,
         onUpdate: renderFrame,
-        onRefresh: () => {
-          console.log('ScrollTrigger refreshed');
-        }
       },
     });
 
@@ -111,6 +104,8 @@ function App() {
 
   useEffect(() => {
     if (!isLoaded) return;
+
+    ctxRef.current = canvasRef.current.getContext('2d');
 
     resizeCanvas();
     setupScrollTrigger();
