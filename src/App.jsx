@@ -1,23 +1,19 @@
 import gsap from 'gsap';
-import { ScrollSmoother } from 'gsap/ScrollSmoother';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from './hooks';
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+gsap.registerPlugin(ScrollTrigger);
 
 const FRAME_ASPECT = 16 / 9;
 const FRAME_COUNT = 398;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
-  const wrapperRef = useRef();
-  const contentRef = useRef();
   const canvasRef = useRef();
   const ctxRef = useRef();
   const imagesRef = useRef([]);
   const frameRef = useRef({ value: 0 });
-  const scrollSmootherRef = useRef(null);
   const scrollTriggerRef = useRef(null);
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
@@ -71,27 +67,8 @@ function App() {
     });
   };
 
-  function setupScrollSmoother() {
-    if (scrollSmootherRef.current) {
-      scrollSmootherRef.current.kill();
-      scrollSmootherRef.current = null;
-    }
-
-    scrollSmootherRef.current = ScrollSmoother.create({
-      wrapper: wrapperRef.current,
-      content: contentRef.current,
-      smooth: 1,
-      smoothTouch: 0.1,
-      effects: false,
-      normalizeScroll: false,
-      ignoreMobileResize: false,
-    });
-
-    return scrollSmootherRef.current;
-  };
-
   function setupScrollTrigger() {
-    if (!canvasRef.current || !scrollSmootherRef.current) return;
+    if (!canvasRef.current) return;
 
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
@@ -136,7 +113,6 @@ function App() {
     if (!isLoaded) return;
 
     resizeCanvas();
-    setupScrollSmoother();
     setupScrollTrigger();
     renderFrame();
 
@@ -144,10 +120,6 @@ function App() {
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.kill();
         scrollTriggerRef.current = null;
-      }
-      if (scrollSmootherRef.current) {
-        scrollSmootherRef.current.kill();
-        scrollSmootherRef.current = null;
       }
     };
   }, [isLoaded]);
@@ -158,16 +130,12 @@ function App() {
   }, []);
 
   return (isLoaded) ? (
-    <div id='smooth-wrapper' ref={wrapperRef}>
-      <div id='smooth-content' ref={contentRef}>
-        <canvas ref={canvasRef}
-          style={{
-            aspectRatio: FRAME_ASPECT,
-            width: '100%',
-          }}
-        />
-      </div>
-    </div>
+    <canvas ref={canvasRef}
+      style={{
+        aspectRatio: FRAME_ASPECT,
+        width: '100%',
+      }}
+    />
   ) : (
     <div id='loading'
       style={{
