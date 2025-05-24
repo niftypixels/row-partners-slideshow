@@ -81,9 +81,9 @@ function App() {
       scrollTrigger: {
         trigger: canvasRef.current,
         start: 'top top',
-        scrub: true,
-        pin: true,
         end: `+=${SCROLL_DISTANCE}`,
+        pin: true,
+        scrub: true,
         onUpdate: renderFrame,
         onRefresh: () => {
           console.log('ScrollTrigger refreshed');
