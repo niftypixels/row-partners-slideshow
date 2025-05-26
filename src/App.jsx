@@ -12,8 +12,9 @@ const SCROLL_DISTANCE = 2000;
 function App() {
   const canvasRef = useRef();
   const ctxRef = useRef();
-  const imagesRef = useRef([]);
   const frameRef = useRef({ value: 0 });
+  const imagesRef = useRef([]);
+  const loadingStartedRef = useRef(false);
   const scrollTriggerRef = useRef(null);
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
@@ -90,17 +91,21 @@ function App() {
   };
 
   useEffect(() => {
-    if (imagesLoaded < FRAME_COUNT) {
+    if (loadingStartedRef.current) return;
+
+    loadingStartedRef.current = true;
+
+    for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
 
-      img.src = currentFrame(imagesLoaded);
+      img.src = currentFrame(i);
 
       img.onload = () => {
-        imagesRef.current[imagesLoaded] = img;
-        setImagesLoaded(imagesLoaded + 1);
+        imagesRef.current[i] = img;
+        setImagesLoaded(prev => prev + 1);
       };
     }
-  }, [imagesLoaded]);
+  }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
