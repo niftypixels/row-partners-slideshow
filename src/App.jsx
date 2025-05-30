@@ -19,7 +19,7 @@ function App() {
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
 
-  const currentFrame = (index) => (`frames/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
+  const currentFrame = (index) => (`/row-partners-slideshow/frames/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
   const handleResize = useDebounce(resizeCanvas, 150);
   const isLoaded = (imagesLoaded === FRAME_COUNT);
 
