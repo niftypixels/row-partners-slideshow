@@ -72,6 +72,27 @@ function App() {
       scrollTriggerRef.current = null;
     }
 
+    if (window.lenis) {
+      ScrollTrigger.scrollerProxy(document.body, {
+        scrollTop(value) {
+          if (arguments.length) {
+            window.lenis.scrollTo(value, { immediate: true });
+          }
+          return window.lenis.scroll;
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
+        }
+      });
+
+      window.lenis.on('scroll', ScrollTrigger.update);
+    }
+
     scrollTriggerRef.current = gsap.to(frameRef.current, {
       value: FRAME_COUNT - 1,
       ease: 'none',
@@ -82,6 +103,7 @@ function App() {
         pin: true,
         scrub: true,
         onUpdate: renderFrame,
+        invalidateOnRefresh: true,
       },
     });
 
