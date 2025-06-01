@@ -103,7 +103,6 @@ function App() {
         pin: true,
         scrub: true,
         onUpdate: renderFrame,
-        invalidateOnRefresh: true,
       },
     });
 
