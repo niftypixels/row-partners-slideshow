@@ -5,6 +5,8 @@ import useDebounce from './hooks/useDebounce';
 
 gsap.registerPlugin(ScrollTrigger);
 
+console.log('GSAP plugins:', Object.keys(gsap.plugins || {}));
+
 const FRAME_ASPECT = 16 / 9;
 const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
@@ -67,12 +69,17 @@ function App() {
   function setupScrollTrigger() {
     if (!canvasRef.current) return;
 
+    console.log('Using GSAP version:', gsap.version);
+    console.log('ScrollTrigger available:', !!ScrollTrigger);
+
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
       scrollTriggerRef.current = null;
     }
 
     if (window.lenis) {
+      console.log('found window.lenis, setting up scrollerProxy');
+
       ScrollTrigger.scrollerProxy(document.body, {
         scrollTop(value) {
           if (arguments.length) {
