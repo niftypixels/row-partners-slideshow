@@ -52,7 +52,7 @@ function App() {
       imagesRef.current = [];
       setisAspectWide(isWide);
       setImagesLoaded(0);
-      return;
+      // return;
     }
 
     requestAnimationFrame(() => { // double RAF ensures stable dimensions after viewport changes
