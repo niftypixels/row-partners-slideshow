@@ -1,11 +1,12 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useDebounce from './hooks/useDebounce';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FRAME_ASPECT = 16 / 9;
+const ASPECT_WIDE = 16 / 9;
+const ASPECT_TALL = 9 / 16;
 const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
 
@@ -17,35 +18,44 @@ function App() {
   const loadingStartedRef = useRef(false);
   const scrollTriggerRef = useRef(null);
 
+  const [isAspectWide, setisAspectWide] = useState(() => window.innerWidth / window.innerHeight >= 1);
   const [imagesLoaded, setImagesLoaded] = useState(0);
 
-  const currentFrame = (index) => (`/row-partners-slideshow/frames/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`);
-  const handleResize = useDebounce(resizeCanvas, 150);
-  const isLoaded = (imagesLoaded === FRAME_COUNT);
+  const isLoaded = !!(imagesLoaded === FRAME_COUNT);
 
-  function renderFrame() {
+  const currentFrame = useCallback((index) => (
+    `/row-partners-slideshow/frames/${
+      (isAspectWide) ? 'wide' : 'tall'
+    }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
+  ), [isAspectWide]);
+
+  const renderFrame = useCallback(() => {
     if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
 
     const { width, height } = canvasRef.current;
-    const frameIndex = Math.min(
-      Math.floor(frameRef.current.value),
-      FRAME_COUNT - 1
-    );
+    const frameIndex = Math.min(Math.floor(frameRef.current.value), FRAME_COUNT - 1);
 
-    ctxRef.current.clearRect(
-      0, 0, width, height
-    );
+    ctxRef.current.clearRect(0, 0, width, height);
 
-    ctxRef.current.drawImage(imagesRef.current[frameIndex],
-      0, 0, width, height
-    );
-  };
+    if (imagesRef.current[frameIndex]) {
+      ctxRef.current.drawImage(imagesRef.current[frameIndex], 0, 0, width, height);
+    }
+  }, []);
 
-  function resizeCanvas() {
+  const resizeCanvas = useCallback(() => {
     if (!canvasRef.current) return;
 
-    // double RAF ensures stable dimensions after viewport changes
-    requestAnimationFrame(() => {
+    const isWide = !!(window.innerWidth / window.innerHeight >= 1);
+
+    if (isWide !== isAspectWide) { // reload when switching aspect ratio
+      loadingStartedRef.current = false;
+      imagesRef.current = [];
+      setisAspectWide(isWide);
+      setImagesLoaded(0);
+      return;
+    }
+
+    requestAnimationFrame(() => { // double RAF ensures stable dimensions after viewport changes
       requestAnimationFrame(() => {
         const { width, height } = canvasRef.current.getBoundingClientRect();
 
@@ -62,9 +72,9 @@ function App() {
         }
       });
     });
-  };
+  }, [isAspectWide, renderFrame]);
 
-  function setupScrollTrigger() {
+  const setupScrollTrigger = useCallback(() => {
     if (!canvasRef.current) return;
 
     if (scrollTriggerRef.current) {
@@ -81,6 +91,7 @@ function App() {
         end: `+=${SCROLL_DISTANCE}`,
         pin: true,
         scrub: true,
+        invalidateOnRefresh: true,
         onUpdate: renderFrame,
       },
     });
@@ -88,7 +99,9 @@ function App() {
     ScrollTrigger.refresh();
 
     return scrollTriggerRef.current;
-  };
+  }, [renderFrame]);
+
+  const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
     if (loadingStartedRef.current) return;
@@ -105,7 +118,7 @@ function App() {
         setImagesLoaded(prev => prev + 1);
       };
     }
-  }, []);
+  }, [isAspectWide]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -122,7 +135,7 @@ function App() {
         scrollTriggerRef.current = null;
       }
     };
-  }, [isLoaded]);
+  }, [isLoaded, resizeCanvas, setupScrollTrigger, renderFrame]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -132,7 +145,7 @@ function App() {
   return (isLoaded) ? (
     <canvas ref={canvasRef}
       style={{
-        aspectRatio: FRAME_ASPECT,
+        aspectRatio: (isAspectWide) ? ASPECT_WIDE : ASPECT_TALL,
         width: '100%',
       }}
     />
