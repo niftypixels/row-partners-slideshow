@@ -122,8 +122,6 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
-    loadingStartedRef.current = true;
-
     const loadImages = async () => {
       let loadedCount = 0;
 
@@ -152,6 +150,7 @@ function App() {
       await Promise.all(loadPromises);
     };
 
+    loadingStartedRef.current = true;
     loadImages();
 
     return () => {
