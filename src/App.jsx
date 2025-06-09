@@ -76,6 +76,7 @@ function App() {
 
     if (isWide !== isAspectWide) { // reload when switching aspect ratio
       if (scrollTriggerRef.current) { // kill scrollTrigger before state updates to avoid DOM conflicts
+        scrollTriggerRef.current.scrollTrigger.kill(true); // kill with revert:true to restore the element to its original state
         scrollTriggerRef.current.kill();
         scrollTriggerRef.current = null;
 
@@ -121,8 +122,6 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
-    if (loadingStartedRef.current) return;
-
     loadingStartedRef.current = true;
 
     const loadImages = async () => {
