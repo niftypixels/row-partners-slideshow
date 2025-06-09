@@ -42,38 +42,6 @@ function App() {
     }
   }, []);
 
-  const resizeCanvas = useCallback(() => {
-    if (!canvasRef.current) return;
-
-    const isWide = !!(window.innerWidth / window.innerHeight >= 1);
-
-    if (isWide !== isAspectWide) { // reload when switching aspect ratio
-      loadingStartedRef.current = false;
-      imagesRef.current = [];
-      setisAspectWide(isWide);
-      setImagesLoaded(0);
-      // return;
-    }
-
-    requestAnimationFrame(() => { // double RAF ensures stable dimensions after viewport changes
-      requestAnimationFrame(() => {
-        const { width, height } = canvasRef.current.getBoundingClientRect();
-
-        // set canvas resolution to DOM element dimensions
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
-
-        if (imagesRef.current.length > 0) {
-          renderFrame();
-        }
-
-        if (scrollTriggerRef.current) {
-          ScrollTrigger.refresh();
-        }
-      });
-    });
-  }, [isAspectWide, renderFrame]);
-
   const setupScrollTrigger = useCallback(() => {
     if (!canvasRef.current) return;
 
@@ -101,8 +69,100 @@ function App() {
     return scrollTriggerRef.current;
   }, [renderFrame]);
 
+  const resizeCanvas = useCallback(() => {
+    if (!canvasRef.current) return;
+
+    const isWide = !!(window.innerWidth / window.innerHeight >= 1);
+
+    if (isWide !== isAspectWide) { // reload when switching aspect ratio
+      if (scrollTriggerRef.current) { // kill scrollTrigger before state updates to avoid DOM conflicts
+        scrollTriggerRef.current.kill();
+        scrollTriggerRef.current = null;
+
+        ScrollTrigger.refresh();
+      }
+
+      requestAnimationFrame(() => { // reset state, RAF enqueued to allow ScrollTrigger cleanup
+        loadingStartedRef.current = false;
+        imagesRef.current = [];
+        frameRef.current.value = 0;
+        setisAspectWide(isWide);
+        setImagesLoaded(0);
+
+        // window.scrollTo(0, 0);
+      });
+
+      return;
+    }
+
+    requestAnimationFrame(() => { // double RAF ensures stable dimensions after viewport changes
+      requestAnimationFrame(() => {
+        if (!canvasRef.current) return;
+
+        const { width, height } = canvasRef.current.getBoundingClientRect();
+
+        // set canvas resolution to DOM element dimensions
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+
+        if (imagesRef.current.length > 0) {
+          renderFrame();
+        }
+
+        if (isLoaded && !scrollTriggerRef.current) {
+          setupScrollTrigger();
+        } else if (scrollTriggerRef.current) {
+          ScrollTrigger.refresh();
+        }
+      });
+    });
+  }, [isAspectWide, renderFrame, isLoaded, setupScrollTrigger]);
+
   const handleResize = useDebounce(resizeCanvas, 150);
 
+  useEffect(() => {
+    if (loadingStartedRef.current) return;
+
+    loadingStartedRef.current = true;
+
+    const loadImages = async () => {
+      let loadedCount = 0;
+
+      const loadPromises = Array.from({ length: FRAME_COUNT }, (_, i) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+
+          img.src = currentFrame(i);
+
+          img.onload = () => {
+            imagesRef.current[i] = img;
+            loadedCount += 1;
+            setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
+            resolve();
+          };
+
+          img.onerror = () => {
+            console.error(`Failed to load image: ${img.src}`);
+            loadedCount += 1;
+            setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
+            resolve(); // avoid stalling, but log error
+          };
+        });
+      });
+
+      await Promise.all(loadPromises);
+    };
+
+    loadImages();
+
+    return () => {
+      loadingStartedRef.current = false;
+      imagesRef.current = [];
+      setImagesLoaded(0);
+    };
+  }, [isAspectWide, currentFrame]);
+
+  /*
   useEffect(() => {
     if (loadingStartedRef.current) return;
 
@@ -119,6 +179,7 @@ function App() {
       };
     }
   }, [isAspectWide]);
+  */
 
   useEffect(() => {
     if (!isLoaded) return;
