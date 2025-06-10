@@ -11,6 +11,7 @@ const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
+  const aspectRatioRef = useRef(window.innerWidth / window.innerHeight >= 1);
   const canvasRef = useRef();
   const ctxRef = useRef();
   const frameRef = useRef({ value: 0 });
@@ -18,16 +19,15 @@ function App() {
   const loadingStartedRef = useRef(false);
   const scrollTriggerRef = useRef(null);
 
-  const [isAspectWide, setisAspectWide] = useState(() => window.innerWidth / window.innerHeight >= 1);
   const [imagesLoaded, setImagesLoaded] = useState(0);
 
   const isLoaded = !!(imagesLoaded === FRAME_COUNT);
 
   const currentFrame = useCallback((index) => (
     `/row-partners-slideshow/frames/${
-      (isAspectWide) ? 'wide' : 'tall'
+      (aspectRatioRef.current) ? 'wide' : 'tall'
     }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
-  ), [isAspectWide]);
+  ), [aspectRatioRef.current]);
 
   const renderFrame = useCallback(() => {
     if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
@@ -74,7 +74,7 @@ function App() {
 
     const isWide = !!(window.innerWidth / window.innerHeight >= 1);
 
-    if (isWide !== isAspectWide) { // reload when switching aspect ratio
+    if (isWide !== aspectRatioRef.current) { // reload when switching aspect ratio
       if (scrollTriggerRef.current) { // kill scrollTrigger before state updates to avoid DOM conflicts
         scrollTriggerRef.current.scrollTrigger.kill(true); // kill with revert:true to restore the element to its original state
         scrollTriggerRef.current.kill();
@@ -83,15 +83,11 @@ function App() {
         ScrollTrigger.refresh();
       }
 
-      requestAnimationFrame(() => { // reset state, RAF enqueued to allow ScrollTrigger cleanup
-        loadingStartedRef.current = false;
-        imagesRef.current = [];
-        frameRef.current.value = 0;
-        setisAspectWide(isWide);
-        setImagesLoaded(0);
-
-        // window.scrollTo(0, 0);
-      });
+      aspectRatioRef.current = isWide;
+      loadingStartedRef.current = false;
+      imagesRef.current = [];
+      frameRef.current.value = 0;
+      setImagesLoaded(0);
 
       return;
     }
@@ -117,7 +113,7 @@ function App() {
         }
       });
     });
-  }, [isAspectWide, renderFrame, isLoaded, setupScrollTrigger]);
+  }, [renderFrame, isLoaded, setupScrollTrigger]);
 
   const handleResize = useDebounce(resizeCanvas, 150);
 
@@ -158,26 +154,7 @@ function App() {
       imagesRef.current = [];
       setImagesLoaded(0);
     };
-  }, [isAspectWide, currentFrame]);
-
-  /*
-  useEffect(() => {
-    if (loadingStartedRef.current) return;
-
-    loadingStartedRef.current = true;
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-
-      img.src = currentFrame(i);
-
-      img.onload = () => {
-        imagesRef.current[i] = img;
-        setImagesLoaded(prev => prev + 1);
-      };
-    }
-  }, [isAspectWide]);
-  */
+  }, [currentFrame]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -204,7 +181,7 @@ function App() {
   return (isLoaded) ? (
     <canvas ref={canvasRef}
       style={{
-        aspectRatio: (isAspectWide) ? ASPECT_WIDE : ASPECT_TALL,
+        aspectRatio: (aspectRatioRef.current) ? ASPECT_WIDE : ASPECT_TALL,
         width: '100%',
       }}
     />
