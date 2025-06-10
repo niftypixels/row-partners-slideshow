@@ -42,7 +42,7 @@ function App() {
     }
   };
 
-  const loadImages = useCallback(async () => {
+  const loadImages = async () => {
     loadingStartedRef.current = true;
 
     let loadedCount = 0;
@@ -70,7 +70,7 @@ function App() {
     });
 
     await Promise.all(loadPromises);
-  }, []);
+  };
 
   const setupScrollTrigger = useCallback(() => {
     if (!canvasRef.current) return;
