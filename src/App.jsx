@@ -11,7 +11,7 @@ const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
-  const aspectRatioRef = useRef(window.innerWidth / window.innerHeight >= 1);
+  const aspectRatioRef = useRef(!!(window.innerWidth / window.innerHeight >= 1));
   const canvasRef = useRef();
   const ctxRef = useRef();
   const frameRef = useRef({ value: 0 });
