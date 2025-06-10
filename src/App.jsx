@@ -16,7 +16,6 @@ function App() {
   const frameRef = useRef({ value: 0 });
   const imagesRef = useRef([]);
   const isWideRef = useRef(!!(window.innerWidth / window.innerHeight >= 1));
-  const loadingStartedRef = useRef(false);
   const scrollTriggerRef = useRef(null);
 
   const [imagesLoaded, setImagesLoaded] = useState(0);
@@ -30,8 +29,6 @@ function App() {
   );
 
   const loadImages = async () => {
-    loadingStartedRef.current = true;
-
     let loadedCount = 0;
 
     const loadPromises = Array.from({ length: FRAME_COUNT }, (_, i) => {
@@ -114,7 +111,6 @@ function App() {
       }
 
       isWideRef.current = isWide;
-      loadingStartedRef.current = false;
       imagesRef.current = [];
       frameRef.current.value = 0;
       setImagesLoaded(0);
