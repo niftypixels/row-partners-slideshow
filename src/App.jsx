@@ -75,7 +75,7 @@ function App() {
     const isWide = !!(window.innerWidth / window.innerHeight >= 1);
 
     if (isWide !== aspectRatioRef.current) { // reload when switching aspect ratio
-      if (scrollTriggerRef.current) { // kill scrollTrigger before state updates to avoid DOM conflicts
+      if (scrollTriggerRef.current) {
         scrollTriggerRef.current.scrollTrigger.kill(true); // kill with revert:true to restore the element to its original state
         scrollTriggerRef.current.kill();
         scrollTriggerRef.current = null;
@@ -92,26 +92,24 @@ function App() {
       return;
     }
 
-    requestAnimationFrame(() => { // double RAF ensures stable dimensions after viewport changes
-      requestAnimationFrame(() => {
-        if (!canvasRef.current) return;
+    requestAnimationFrame(() => {
+      if (!canvasRef.current) return;
 
-        const { width, height } = canvasRef.current.getBoundingClientRect();
+      const { width, height } = canvasRef.current.getBoundingClientRect();
 
-        // set canvas resolution to DOM element dimensions
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
+      // set canvas resolution to DOM element dimensions
+      canvasRef.current.width = width;
+      canvasRef.current.height = height;
 
-        if (imagesRef.current.length > 0) {
-          renderFrame();
-        }
+      if (imagesRef.current.length > 0) {
+        renderFrame();
+      }
 
-        if (isLoaded && !scrollTriggerRef.current) {
-          setupScrollTrigger();
-        } else if (scrollTriggerRef.current) {
-          ScrollTrigger.refresh();
-        }
-      });
+      if (isLoaded && !scrollTriggerRef.current) {
+        setupScrollTrigger();
+      } else if (scrollTriggerRef.current) {
+        ScrollTrigger.refresh();
+      }
     });
   }, [renderFrame, isLoaded, setupScrollTrigger]);
 
