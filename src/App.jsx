@@ -11,11 +11,11 @@ const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
-  const aspectRatioRef = useRef(!!(window.innerWidth / window.innerHeight >= 1));
   const canvasRef = useRef();
   const ctxRef = useRef();
   const frameRef = useRef({ value: 0 });
   const imagesRef = useRef([]);
+  const isWideRef = useRef(!!(window.innerWidth / window.innerHeight >= 1));
   const loadingStartedRef = useRef(false);
   const scrollTriggerRef = useRef(null);
 
@@ -25,7 +25,7 @@ function App() {
 
   const currentFrame = (index) => (
     `/row-partners-slideshow/frames/${
-      (aspectRatioRef.current) ? 'wide' : 'tall'
+      (isWideRef.current) ? 'wide' : 'tall'
     }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
   );
 
@@ -104,7 +104,7 @@ function App() {
 
     const isWide = !!(window.innerWidth / window.innerHeight >= 1);
 
-    if (isWide !== aspectRatioRef.current) { // reload when switching aspect ratio
+    if (isWide !== isWideRef.current) { // reload when switching aspect ratio
       if (scrollTriggerRef.current) {
         scrollTriggerRef.current.scrollTrigger.kill(true); // kill with revert:true to restore the element to its original state
         scrollTriggerRef.current.kill();
@@ -113,7 +113,7 @@ function App() {
         ScrollTrigger.refresh();
       }
 
-      aspectRatioRef.current = isWide;
+      isWideRef.current = isWide;
       loadingStartedRef.current = false;
       imagesRef.current = [];
       frameRef.current.value = 0;
@@ -173,7 +173,7 @@ function App() {
   return (isLoaded) ? (
     <canvas ref={canvasRef}
       style={{
-        aspectRatio: (aspectRatioRef.current) ? ASPECT_WIDE : ASPECT_TALL,
+        aspectRatio: (isWideRef.current) ? ASPECT_WIDE : ASPECT_TALL,
         width: '100%',
       }}
     />
