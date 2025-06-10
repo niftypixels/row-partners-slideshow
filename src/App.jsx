@@ -29,19 +29,6 @@ function App() {
     }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
   );
 
-  const renderFrame = () => {
-    if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
-
-    const { width, height } = canvasRef.current;
-    const frameIndex = Math.min(Math.floor(frameRef.current.value), FRAME_COUNT - 1);
-
-    ctxRef.current.clearRect(0, 0, width, height);
-
-    if (imagesRef.current[frameIndex]) {
-      ctxRef.current.drawImage(imagesRef.current[frameIndex], 0, 0, width, height);
-    }
-  };
-
   const loadImages = async () => {
     loadingStartedRef.current = true;
 
@@ -70,6 +57,19 @@ function App() {
     });
 
     await Promise.all(loadPromises);
+  };
+
+  const renderFrame = () => {
+    if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
+
+    const { width, height } = canvasRef.current;
+    const frameIndex = Math.min(Math.floor(frameRef.current.value), FRAME_COUNT - 1);
+
+    ctxRef.current.clearRect(0, 0, width, height);
+
+    if (imagesRef.current[frameIndex]) {
+      ctxRef.current.drawImage(imagesRef.current[frameIndex], 0, 0, width, height);
+    }
   };
 
   const setupScrollTrigger = useCallback(() => {
