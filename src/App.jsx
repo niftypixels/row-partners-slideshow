@@ -23,11 +23,41 @@ function App() {
 
   const isLoaded = !!(imagesLoaded === FRAME_COUNT);
 
-  const currentFrame = useCallback((index) => (
+  const currentFrame = (index) => (
     `/row-partners-slideshow/frames/${
       (aspectRatioRef.current) ? 'wide' : 'tall'
     }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
-  ), [aspectRatioRef.current]);
+  );
+
+  const loadImages = useCallback(async () => {
+    loadingStartedRef.current = true;
+
+    let loadedCount = 0;
+
+    const loadPromises = Array.from({ length: FRAME_COUNT }, (_, i) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+
+        img.src = currentFrame(i);
+
+        img.onload = () => {
+          imagesRef.current[i] = img;
+          loadedCount += 1;
+          setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
+          resolve();
+        };
+
+        img.onerror = () => {
+          console.error(`Failed to load image: ${img.src}`);
+          loadedCount += 1;
+          setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
+          resolve(); // avoid stalling, but log error
+        };
+      });
+    });
+
+    await Promise.all(loadPromises);
+  }, []);
 
   const renderFrame = useCallback(() => {
     if (!canvasRef.current || !ctxRef.current || imagesRef.current.length === 0) return;
@@ -88,6 +118,7 @@ function App() {
       imagesRef.current = [];
       frameRef.current.value = 0;
       setImagesLoaded(0);
+      loadImages();
 
       return;
     }
@@ -116,45 +147,6 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
-    const loadImages = async () => {
-      let loadedCount = 0;
-
-      const loadPromises = Array.from({ length: FRAME_COUNT }, (_, i) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-
-          img.src = currentFrame(i);
-
-          img.onload = () => {
-            imagesRef.current[i] = img;
-            loadedCount += 1;
-            setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
-            resolve();
-          };
-
-          img.onerror = () => {
-            console.error(`Failed to load image: ${img.src}`);
-            loadedCount += 1;
-            setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
-            resolve(); // avoid stalling, but log error
-          };
-        });
-      });
-
-      await Promise.all(loadPromises);
-    };
-
-    loadingStartedRef.current = true;
-    loadImages();
-
-    return () => {
-      loadingStartedRef.current = false;
-      imagesRef.current = [];
-      setImagesLoaded(0);
-    };
-  }, [currentFrame]);
-
-  useEffect(() => {
     if (!isLoaded) return;
 
     ctxRef.current = canvasRef.current.getContext('2d');
@@ -172,6 +164,8 @@ function App() {
   }, [isLoaded, resizeCanvas, setupScrollTrigger, renderFrame]);
 
   useEffect(() => {
+    loadImages();
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
