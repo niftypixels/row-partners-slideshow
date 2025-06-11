@@ -93,7 +93,15 @@ function App() {
         pin: true,
         scrub: true,
         invalidateOnRefresh: true,
-        onUpdate: renderFrame,
+        onUpdate: (self) => {
+          renderFrame();
+
+          if (self.progress >= 1) {
+            document.body.classList.add('anthem_ready');
+          } else {
+            document.body.classList.remove('anthem_ready');
+          }
+        },
       },
     });
 
