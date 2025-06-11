@@ -1,9 +1,5 @@
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useDebounce from './hooks/useDebounce';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const ASPECT_WIDE = 16 / 9;
 const ASPECT_TALL = 9 / 16;
@@ -18,9 +14,11 @@ function App() {
   const isWideRef = useRef(!!(window.innerWidth / window.innerHeight >= 1));
   const scrollTriggerRef = useRef(null);
 
+  const [gsapReady, setGsapReady] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(0);
 
   const isLoaded = !!(imagesLoaded === FRAME_COUNT);
+  const isReady = !!(isLoaded && gsapReady);
 
   const currentFrame = (index) => (
     `/row-partners-slideshow/frames/${
@@ -72,6 +70,14 @@ function App() {
   const setupScrollTrigger = useCallback(() => {
     if (!canvasRef.current) return;
 
+    const gsap = window.gsap;
+    const ScrollTrigger = window.gsap?.ScrollTrigger;
+
+    if (!gsap || !ScrollTrigger) {
+      console.warn('GSAP or ScrollTrigger not available in setupScrollTrigger');
+      return;
+    }
+
     if (scrollTriggerRef.current) {
       scrollTriggerRef.current.kill();
       scrollTriggerRef.current = null;
@@ -99,6 +105,7 @@ function App() {
   const resizeCanvas = useCallback(() => {
     if (!canvasRef.current) return;
 
+    const ScrollTrigger = window.gsap?.ScrollTrigger;
     const isWide = !!(window.innerWidth / window.innerHeight >= 1);
 
     if (isWide !== isWideRef.current) { // reload when switching aspect ratio
@@ -107,7 +114,9 @@ function App() {
         scrollTriggerRef.current.kill();
         scrollTriggerRef.current = null;
 
-        ScrollTrigger.refresh();
+        if (ScrollTrigger) {
+          ScrollTrigger.refresh();
+        }
       }
 
       isWideRef.current = isWide;
@@ -143,7 +152,27 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    loadImages();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const checkGSAP = () => {
+      if (window.gsap && window.ScrollTrigger) {
+        window.gsap.ScrollTrigger = window.ScrollTrigger;
+        setGsapReady(true);
+      } else {
+        setTimeout(checkGSAP, 50);
+      }
+    };
+
+    checkGSAP();
+  }, []);
+
+  useEffect(() => {
+    if (!isReady) return;
 
     ctxRef.current = canvasRef.current.getContext('2d');
 
@@ -157,14 +186,7 @@ function App() {
         scrollTriggerRef.current = null;
       }
     };
-  }, [isLoaded, resizeCanvas, setupScrollTrigger, renderFrame]);
-
-  useEffect(() => {
-    loadImages();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isReady, resizeCanvas, setupScrollTrigger, renderFrame]);
 
   return (isLoaded) ? (
     <canvas ref={canvasRef}
