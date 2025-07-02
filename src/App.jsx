@@ -3,7 +3,7 @@ import useDebounce from './hooks/useDebounce';
 
 const ASPECT_WIDE = 16 / 9;
 const ASPECT_TALL = 9 / 16;
-const FRAME_COUNT = 434;
+const FRAME_COUNT = 507;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
   const currentFrame = (index) => (
     `/row-partners-slideshow/frames/${
       (isWideRef.current) ? 'wide' : 'tall'
-    }/row_webTest13_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.jpg`
+    }/row_webTest16_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.webp`
   );
 
   const loadImages = async () => {
