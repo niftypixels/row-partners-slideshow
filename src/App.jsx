@@ -83,6 +83,61 @@ function App() {
       scrollTriggerRef.current = null;
     }
 
+    let frictionActive = false;
+    let frictionStartTime = 0;
+    let lastScrollY = window.scrollY;
+    let lastTouchY = 0;
+    const FRICTION = {
+      DURATION: 800,
+      FACTOR: 0.3
+    };
+
+    const handleFriction = (e) => {
+      if (!frictionActive) return;
+
+      const currentTime = Date.now();
+      const frictionDeltaTime = currentTime - frictionStartTime;
+
+      if (frictionDeltaTime > FRICTION.DURATION) {
+        frictionActive = false;
+        removeFrictionListeners();
+        return;
+      }
+
+      let deltaY = 0;
+ 
+      if (e.type === 'wheel') {
+        e.preventDefault();
+ 
+        deltaY = e.deltaY;
+      } else if (e.type === 'touchstart') {
+        lastTouchY = e.touches[0].clientY;
+        return; // No scrolling on touchstart, just capture position
+      } else if (e.type === 'touchmove') {
+        e.preventDefault();
+
+        const touchY = e.touches[0].clientY;
+        deltaY = lastTouchY - touchY;
+        lastTouchY = touchY;
+      }
+
+      if (deltaY !== 0) {
+        window.scrollBy(0, deltaY * FRICTION_FACTOR);
+      }
+    };
+
+    const addFrictionListeners = () => {
+      window.addEventListener('wheel', handleFriction, { passive: false });
+      window.addEventListener('touchstart', handleFriction, { passive: false });
+      window.addEventListener('touchmove', handleFriction, { passive: false });
+    };
+
+    const removeFrictionListeners = () => {
+      window.removeEventListener('wheel', handleFriction, { passive: false });
+      window.removeEventListener('touchstart', handleFriction, { passive: false });
+      window.removeEventListener('touchmove', handleFriction, { passive: false });
+    };
+
     scrollTriggerRef.current = gsap.to(frameRef.current, {
       value: FRAME_COUNT - 1,
       ease: 'none',
@@ -98,10 +153,32 @@ function App() {
 
           if (self.progress >= 1) {
             document.body.classList.add('anthem_ready');
+
+            const currentScrollY = window.scrollY;
+            const scrollingDown = currentScrollY > lastScrollY;
+
+            if (scrollingDown && !frictionActive) {
+              frictionActive = true;
+              frictionStartTime = Date.now();
+              addFrictionListeners();
+            }
+
+            lastScrollY = currentScrollY;
           } else {
             document.body.classList.remove('anthem_ready');
+
+            if (frictionActive) {
+              frictionActive = false;
+              removeFrictionListeners();
+            }
           }
         },
+        onLeave: () => {
+          if (frictionActive) {
+            frictionActive = false;
+            removeFrictionListeners();
+          }
+        }
       },
     });
 
