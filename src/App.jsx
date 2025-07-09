@@ -23,7 +23,7 @@ function App() {
   const currentFrame = (index) => (
     `/row-partners-slideshow/frames/${
       (isWideRef.current) ? 'wide' : 'tall'
-    }/row_webTest16_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.webp`
+    }/row_webTest17_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.webp`
   );
 
   const loadImages = async () => {
