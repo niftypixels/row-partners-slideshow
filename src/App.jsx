@@ -3,7 +3,7 @@ import useDebounce from './hooks/useDebounce';
 
 const ASPECT_WIDE = 16 / 9;
 const ASPECT_TALL = 9 / 16;
-const FRAME_COUNT = 434;
+const FRAME_COUNT = 433;
 const SCROLL_DISTANCE = 2000;
 
 function App() {
