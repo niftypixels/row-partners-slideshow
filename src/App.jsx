@@ -196,21 +196,26 @@ function App() {
     };
   }, [isReady, resizeCanvas, setupScrollTrigger, renderFrame]);
 
-  return (isLoaded) ? (
-    <canvas ref={canvasRef}
-      style={{
-        aspectRatio: (isWideRef.current) ? ASPECT_WIDE : ASPECT_TALL,
-        width: '100%',
-      }}
-    />
-  ) : (
-    <div
-      style={{
-        backgroundColor: 'red',
-        height: '2px',
-        width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
-      }}
-    />
+  return (
+    <>
+      <canvas ref={canvasRef}
+        style={{
+          aspectRatio: (isWideRef.current) ? ASPECT_WIDE : ASPECT_TALL,
+          width: '100%',
+        }}
+      />
+      <div
+        style={{
+          backgroundColor: 'red',
+          height: '2px',
+          width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
+          opacity: (isLoaded) ? 0 : 1,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      />
+    </>
   );
 }
 
