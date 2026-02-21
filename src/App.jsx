@@ -39,6 +39,9 @@ function App() {
           imagesRef.current[i] = img;
           loadedCount += 1;
           setImagesLoaded(Math.min(loadedCount, FRAME_COUNT));
+
+          if (i === 0) renderFrame();
+
           resolve();
         };
 
@@ -160,6 +163,8 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
+    ctxRef.current = canvasRef.current.getContext('2d');
+    resizeCanvas();
     loadImages();
 
     window.addEventListener('resize', handleResize);
