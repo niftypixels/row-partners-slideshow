@@ -208,11 +208,14 @@ function App() {
         style={{
           backgroundColor: 'red',
           height: '2px',
-          width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
-          visibility: (isLoaded) ? 'hidden' : 'visible',
+          width: '100%',
           position: 'absolute',
           top: 0,
           left: 0,
+          opacity: isLoaded ? 0 : 1,
+          transform: `scaleX(${imagesLoaded / FRAME_COUNT})`,
+          transformOrigin: 'left center',
+          willChange: 'opacity, transform',
         }}
       />
     </>
