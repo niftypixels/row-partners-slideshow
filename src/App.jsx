@@ -209,7 +209,7 @@ function App() {
           backgroundColor: 'red',
           height: '2px',
           width: `${Math.floor(imagesLoaded / FRAME_COUNT * 100)}%`,
-          opacity: (isLoaded) ? 0 : 1,
+          visibility: (isLoaded) ? 'hidden' : 'visible',
           position: 'absolute',
           top: 0,
           left: 0,
