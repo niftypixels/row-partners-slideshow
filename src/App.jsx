@@ -188,8 +188,6 @@ function App() {
   useEffect(() => {
     if (!isReady) return;
 
-    ctxRef.current = canvasRef.current.getContext('2d');
-
     resizeCanvas();
     setupScrollTrigger();
     renderFrame();
