@@ -116,6 +116,8 @@ function App() {
   const resizeCanvas = useCallback(() => {
     if (!canvasRef.current) return;
 
+    ctxRef.current = canvasRef.current.getContext('2d');
+
     const ScrollTrigger = window.gsap?.ScrollTrigger;
     const isWide = !!(window.innerWidth / window.innerHeight >= 1);
 
@@ -163,7 +165,6 @@ function App() {
   const handleResize = useDebounce(resizeCanvas, 150);
 
   useEffect(() => {
-    ctxRef.current = canvasRef.current.getContext('2d');
     resizeCanvas();
     loadImages();
 
