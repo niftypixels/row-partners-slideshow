@@ -205,6 +205,7 @@ function App() {
       <canvas ref={canvasRef}
         style={{
           aspectRatio: (isWideRef.current) ? ASPECT_WIDE : ASPECT_TALL,
+          opacity: (imagesLoaded / FRAME_COUNT),
           width: '100%',
         }}
       />
