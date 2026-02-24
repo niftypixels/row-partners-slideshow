@@ -5,6 +5,7 @@ const ASPECT_WIDE = 16 / 9;
 const ASPECT_TALL = 9 / 16;
 const FRAME_COUNT = 433;
 const SCROLL_DISTANCE = 2000;
+const CLOUDFLARE_BASE_URL = 'https://pub-065105b6aed8461b86737fa696638c89.r2.dev';
 
 function App() {
   const canvasRef = useRef();
@@ -21,7 +22,7 @@ function App() {
   const isReady = !!(isLoaded && gsapReady);
 
   const currentFrame = (index) => (
-    `/row-partners-slideshow/frames/${
+    `${CLOUDFLARE_BASE_URL}/frames/${
       (isWideRef.current) ? 'wide' : 'tall'
     }/row_webTest17_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.webp`
   );
