@@ -6,6 +6,8 @@ const ASPECT_TALL = 9 / 16;
 const FRAME_COUNT = 433;
 const SCROLL_DISTANCE = 2000;
 const CLOUDFLARE_BASE_URL = 'https://pub-065105b6aed8461b86737fa696638c89.r2.dev';
+const { BASE_URL, MODE } = import.meta.env;
+const FRAME_SRC = MODE === 'cloudflare' ? CLOUDFLARE_BASE_URL : BASE_URL;
 
 function App() {
   const canvasRef = useRef();
@@ -22,7 +24,7 @@ function App() {
   const isReady = !!(isLoaded && gsapReady);
 
   const currentFrame = (index) => (
-    `${CLOUDFLARE_BASE_URL}/frames/${
+    `${FRAME_SRC}/frames/${
       (isWideRef.current) ? 'wide' : 'tall'
     }/row_webTest17_${index.toString().padStart(FRAME_COUNT.toString().length, '0')}.webp`
   );

@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import { name } from './package.json'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/row-partners-slideshow/',
+  base: `/${name}/`,
+  mode: process.env.CLOUDFLARE ? 'cloudflare' : 'production',
   plugins: [react()],
   build: {
     rollupOptions: {
