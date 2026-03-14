@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useDebounce from './hooks/useDebounce';
 
+const { BASE_URL, MODE } = import.meta.env;
+const CLOUDFLARE_BASE_URL = 'https://pub-065105b6aed8461b86737fa696638c89.r2.dev';
+const FRAME_SRC = MODE === 'cloudflare' ? CLOUDFLARE_BASE_URL : BASE_URL;
+
 const ASPECT_WIDE = 16 / 9;
 const ASPECT_TALL = 9 / 16;
 const FRAME_COUNT = 433;
 const SCROLL_DISTANCE = 2000;
-const CLOUDFLARE_BASE_URL = 'https://pub-065105b6aed8461b86737fa696638c89.r2.dev';
-const { BASE_URL, MODE } = import.meta.env;
-const FRAME_SRC = MODE === 'cloudflare' ? CLOUDFLARE_BASE_URL : BASE_URL;
 
 function App() {
   const canvasRef = useRef();
